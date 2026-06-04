@@ -129,6 +129,12 @@ nav.scrolled{top:0;background:rgba(7,7,7,0.96);backdrop-filter:blur(24px);border
 .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--a);transition:width 0.25s}
 .nav-links a:hover{color:var(--a)}
 .nav-links a:hover::after{width:100%}
+/* HAMBURGER */
+.nav-burger{display:none;flex-direction:column;justify-content:space-between;width:28px;height:18px;background:none;border:none;cursor:pointer;padding:0;z-index:200}
+.nav-burger span{display:block;width:100%;height:1.5px;background:var(--t);border-radius:1px;transition:transform 0.3s,opacity 0.3s,width 0.3s}
+.nav-burger.open span:nth-child(1){transform:translateY(8.25px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0;width:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-8.25px) rotate(-45deg)}
 
 .name-part{display:block;}
 
@@ -385,12 +391,12 @@ nav.scrolled{top:0;background:rgba(7,7,7,0.96);backdrop-filter:blur(24px);border
 .sk-items{display:flex;flex-direction:column;gap:7px}
 .sk-item{font-family:var(--mono);font-size:0.78rem;color:var(--tm);padding-left:12px;position:relative}
 .sk-item::before{content:'';position:absolute;left:0;top:50%;width:5px;height:1px;background:var(--a);transform:translateY(-50%)}
-/* PROFICIENCY TIERS */
+/* PROFICIENCY TIERS — same text brightness, dash weight signals depth */
 .sk-item.p1{color:var(--t)}
 .sk-item.p1::before{width:7px;height:2px;background:var(--a)}
-.sk-item.p2{color:var(--tm)}
-.sk-item.p3{color:var(--td);font-size:0.72rem}
-.sk-item.p3::before{background:var(--td)}
+.sk-item.p2{color:var(--t)}
+.sk-item.p3{color:var(--t);font-size:0.78rem}
+.sk-item.p3::before{background:var(--a)}
 .sk-tier-label{font-family:var(--mono);font-size:0.55rem;color:var(--td);letter-spacing:2px;text-transform:uppercase;margin:14px 0 6px 0;padding-left:12px}
 /* CARD METRIC */
 .card-metric{display:flex;align-items:baseline;gap:8px;margin:16px 0 12px}
@@ -425,11 +431,25 @@ footer .footer-center{position:absolute;left:50%;transform:translateX(-50%);whit
 @media(max-width:880px){
   nav,nav.scrolled{padding:14px 24px;top:37px}
   nav.scrolled{top:0}
-  .nav-links{gap:18px}
+  .nav-burger{display:flex}
+  .nav-links{
+    position:fixed;top:0;right:-100%;width:70%;max-width:280px;height:100vh;
+    background:rgba(7,7,7,0.97);backdrop-filter:blur(24px);
+    flex-direction:column;justify-content:center;align-items:flex-start;
+    padding:80px 40px;gap:28px;
+    border-left:1px solid var(--b);
+    transition:right 0.35s cubic-bezier(.19,1,.22,1);
+    z-index:150;
+  }
+  .nav-links.open{right:0}
+  .nav-links a{font-size:1rem;letter-spacing:3px}
   #hero,.sec,#contact,footer{padding-left:24px;padding-right:24px}
   .about-wrap{grid-template-columns:1fr;gap:40px}
   .exp-row{grid-template-columns:1fr;gap:8px}
-  .stmt-right{display:none}
+  .stmt-right{display:flex}
+  .sep{display:none}
+  .hero-loc{display:none}
+  .big-stat{font-size:clamp(2rem,10vw,3rem)}
   .stats-strip{grid-template-columns:repeat(2,1fr)}
   .stat-box:nth-child(2){border-right:none}
   .stat-box:nth-child(3){border-top:1px solid var(--b)}
@@ -542,6 +562,10 @@ footer .footer-center{position:absolute;left:50%;transform:translateX(-50%);whit
     <li><a href="#experience">Experience</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
+  <!-- Hamburger — mobile only -->
+  <button class="nav-burger" id="navBurger" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -553,8 +577,6 @@ footer .footer-center{position:absolute;left:50%;transform:translateX(-50%);whit
   </h1>
   <div class="hero-meta">
     <span class="hero-role-line">Industrial Automation &nbsp;<strong>×</strong>&nbsp; IoT &nbsp;<strong>×</strong>&nbsp; Data Engineering</span>
-    <span class="sep">|</span>
-    <span class="hero-loc">Bengaluru, India</span>
     <!-- Replace href with your actual resume URL or file path -->
     <a href="./MrigankaGhosh_Resume.pdf" download class="btn-resume" title="Download Resume">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -645,7 +667,6 @@ footer .footer-center{position:absolute;left:50%;transform:translateX(-50%);whit
       <div class="fact"><div class="fact-k">Company</div><div class="fact-v">Instadata Pvt. Ltd.</div></div>
       <div class="fact"><div class="fact-k">Domain</div><div class="fact-v">Industrial Automation</div></div>
       <div class="fact"><div class="fact-k">Focus</div><div class="fact-v">OPC · IoT · Data Pipelines</div></div>
-      <div class="fact"><div class="fact-k">Location</div><div class="fact-v">Bengaluru, India</div></div>
     </div>
   </div>
 </div>
@@ -1124,6 +1145,21 @@ document.getElementById('btnSayHi').addEventListener('click',async()=>{
     console.error('EmailJS error:',err);
   }
 });
+// ── HAMBURGER MENU
+const burger=document.getElementById('navBurger');
+const navLinks=document.querySelector('.nav-links');
+burger.addEventListener('click',()=>{
+  const open=burger.classList.toggle('open');
+  navLinks.classList.toggle('open',open);
+  burger.setAttribute('aria-expanded',open);
+  document.body.style.overflow=open?'hidden':'';
+});
+navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+  burger.classList.remove('open');
+  navLinks.classList.remove('open');
+  burger.setAttribute('aria-expanded',false);
+  document.body.style.overflow='';
+}));
 </script>
 </body>
 </html>
